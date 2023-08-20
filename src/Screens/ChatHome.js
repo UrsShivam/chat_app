@@ -10,7 +10,9 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
-import { db, auth, } from "../Firebase";
+import { db, auth, getMessagingToken, sendTokenToServer, } from "../Firebase";
+
+
 import {
     addDoc,
     collection,
@@ -19,6 +21,9 @@ import {
     query,
 } from "firebase/firestore";
 import AddUser from "./AddUser";
+
+import { getMessaging } from "firebase/messaging";
+import axios from "axios";
 
 function UsersComponent(props) {
     const { receiverId } = props.params
@@ -78,7 +83,6 @@ export default function Home() {
     const [open, setOpen] = useState(false)
     const [receiverData, setReceiverData] = useState(null);
     const [chatMessage, setChatMessage] = useState("");
-
     const [allMessages, setAllMessages] = useState([]);
     const params = useParams()
 
@@ -87,17 +91,17 @@ export default function Home() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        
         const unsub = onSnapshot(collection(db, "users"), (snapshot) => {
             setUsers(snapshot.docs.map((doc) => doc.data()));
         });
         return unsub;
     }, []);
+const currentToken= localStorage.getItem('token')
 
     useEffect(() => {
         if (receiverData) {
-
-
-
+            
             const unsub = onSnapshot(
                 query(
                     collection(
@@ -116,7 +120,8 @@ export default function Home() {
                             id: doc.id,
                             messages: doc.data(),
                         }))
-                    );
+                        );              
+                    
                 }
             );
             return unsub;
@@ -159,6 +164,8 @@ export default function Home() {
                         timestamp: new Date(),
                     }
                 );
+                getMessagingToken(user.displayName,chatMessage)
+                 
             }
         } catch (error) {
             console.log(error);
@@ -262,6 +269,7 @@ export default function Home() {
                 </div>
             </Paper>
             <AddUser open={open} handleClose={() => setOpen(false)} />
+        
         </div>
     );
 }
