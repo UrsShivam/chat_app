@@ -30,6 +30,7 @@ export const getMessagingToken = async ({user,chatMessage}) => {
       return  getToken(messaging, { vapidKey: `BGZl468T3erL1mZZIZVkXF2TPhi7aBr21P0XZwSqKt0usUmuaftxUn9Ix-9TVgb6-Eqpe7gOXt2cP03mzQyzfvo` })
         .then((currentToken) => {
           if (currentToken) {
+            
             sendTokenToServer(currentToken,user,chatMessage)
           } else {
             console.log('Failed to generate the app registration token.');
